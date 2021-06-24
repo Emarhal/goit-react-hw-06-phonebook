@@ -1,6 +1,9 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { v4 as uuidv4 } from "uuid";
 import styles from "./ContactForm.module.css";
+import { addNewToList } from "../../redux/actions";
+import { connect } from "react-redux";
 
 class ContactForm extends Component {
   static propTypes = {
@@ -11,6 +14,23 @@ class ContactForm extends Component {
     number: "",
   };
 
+  handleSubmit = (name, number) => {
+    const isDuplicate = this.props.items.some((item) => item.name === name);
+
+    if (isDuplicate) {
+      alert(name + " is already in contacts ");
+      return;
+    }
+
+    const newContact = {
+      id: uuidv4(),
+      name: name,
+      number: number,
+    };
+
+    this.props.addNewToList(newContact);
+  };
+
   handleChange = (evt) => {
     this.setState({
       [evt.target.name]: evt.target.value,
@@ -19,7 +39,7 @@ class ContactForm extends Component {
 
   onSubmit = (evt) => {
     evt.preventDefault();
-    this.props.handleSubmit(this.state.name, this.state.number);
+    this.handleSubmit(this.state.name, this.state.number);
     this.setState({ name: "", number: "" });
   };
   render() {
@@ -62,4 +82,14 @@ class ContactForm extends Component {
   }
 }
 
-export default ContactForm;
+const mapStateToProps = (state) => {
+  return {
+    items: state.items,
+  };
+};
+
+const mapDispatchToProps = {
+  addNewToList,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);

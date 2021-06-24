@@ -1,10 +1,12 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { connect } from "react-redux";
+import { deletedItem } from "../../redux/actions";
 
-const ContactList = ({ contacts, handleDelete }) => {
+const ContactList = ({ items, handleDelete }) => {
   return (
     <ul>
-      {contacts.map(({ id, name, number }) => (
+      {items.map(({ id, name, number }) => (
         <li key={id}>
           <p>
             {name}: {number}
@@ -19,6 +21,23 @@ const ContactList = ({ contacts, handleDelete }) => {
 };
 
 ContactList.propTypes = {
-  contacts: PropTypes.array.isRequired,
+  items: PropTypes.array.isRequired,
 };
-export default ContactList;
+
+const mapStateToProps = (state) => {
+  const { items, filter } = state;
+
+  const formattedFilter = filter.toLowerCase().trim();
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(formattedFilter)
+  );
+  return {
+    items: filteredItems,
+  };
+};
+
+const mapDispatchToProps = {
+  handleDelete: deletedItem,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ContactList);
